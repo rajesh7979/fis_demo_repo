@@ -23,7 +23,7 @@ pipeline {
            steps {
                script {         
                  def customImage = docker.build('ahmedwahi314/myrepo', "./docker")
-                 docker.withRegistry('https://myaksapp.azurecr.io', 'acr') {
+                 docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                  customImage.push("${env.BUILD_NUMBER}")
                  }                     
            }
