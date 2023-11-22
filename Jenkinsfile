@@ -18,7 +18,28 @@ pipeline {
 		   sh 'cp -r target/*.jar docker'
            }
         }
-         
+	stage('Checkstyle Analysis'){
+            steps {
+                    sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+               withSonarQubeEnv('sonar') {
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=petclinic \
+                   -Dsonar.projectName=petclinic \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+		   -Dsonar.java.binaries=target/java/org/springframework/samples/petclinic \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+              }
+            }
+        }
         stage('Build docker image') {
            steps {
                script {         
