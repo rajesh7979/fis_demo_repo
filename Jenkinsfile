@@ -33,7 +33,7 @@ pipeline {
                    -Dsonar.projectName=petclinic \
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.sources=src/ \
-		   -Dsonar.java.binaries=target/java/org/springframework/samples/petclinic \
+		   -Dsonar.java.binaries=target/main/java/org/springframework/samples/petclinic \
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
