@@ -44,7 +44,7 @@ pipeline {
            steps {
                script {         
                  def customImage = docker.build('ahmedwahi314/petclinic', "./docker")
-                 docker.withRegistry('https://registry.hub.docker.com', 'dockerheub') {
+                 docker.withRegistry('http://20.65.200.234:8082/artifactory/dockerhub', 'jfrog') {
                  customImage.push("${env.BUILD_NUMBER}")
                  }                     
            }
