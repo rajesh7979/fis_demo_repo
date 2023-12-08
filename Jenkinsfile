@@ -49,7 +49,7 @@ pipeline {
            }
            steps {
                script {         
-                 def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+                 def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}", 'dockerheub')
                  docker.withRegistry("${ARTIFACTORY_URL}/${DOCKER_REPO}", 'jfrog') {
                  dockerImage.push()
                  }                     
