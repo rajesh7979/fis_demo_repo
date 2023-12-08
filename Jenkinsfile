@@ -41,11 +41,17 @@ pipeline {
             }
         }
         stage('Build docker image') {
+	   environment {
+             ARTIFACTORY_URL = 'http://20.65.200.234:8082/artifactory'
+             DOCKER_REPO = 'ahmedwahi314/petclinic'
+             DOCKER_IMAGE_NAME = 'mypetclinic'
+             DOCKER_IMAGE_TAG = 'latest'
+           }
            steps {
                script {         
-                 def customImage = docker.build('ahmedwahi314/petclinic', "./docker")
-                 docker.withRegistry('http://20.65.200.234:8082/artifactory/dockerhub', 'jfrog') {
-                 customImage.push("${env.BUILD_NUMBER}")
+                 def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+                 docker.withRegistry("${ARTIFACTORY_URL}/${DOCKER_REPO}", 'jfrog') {
+                 dockerImage.push()
                  }                     
            }
         }
