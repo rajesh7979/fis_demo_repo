@@ -1,8 +1,17 @@
 pipeline {
   agent any
-    tools {
+  tools {
       maven 'maven3'
-                 jdk 'JDK8'
+      jdk 'JDK8'
+      jfrog 'cli'
+    }
+   environment {
+      DOCKER_IMAGE_NAME = "slk.jfrog.io/fis-demo-dockerhub/app-image.${BUILD_ID}.${env.BUILD_NUMBER}"
+      ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
+      WEBHOOK_URL = credentials("webhook_url")
+      BUILD_NAME = "${JOB_NAME}"
+      BUILD_NO = "${env.BUILD_NUMBER}"
+       
     }
     stages {      
         stage('Build maven ') {
@@ -41,20 +50,28 @@ pipeline {
             }
         }
         stage('Build docker image') {
-	   environment {
-             ARTIFACTORY_URL = 'http://20.65.200.234:8082/artifactory'
-             DOCKER_REPO = 'ahmedwahi314/petclinic'
-             DOCKER_IMAGE_NAME = 'mypetclinic'
-             DOCKER_IMAGE_TAG = 'latest'
-           }
            steps {
                script {         
-                 def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}","./docker")
-                 docker.withRegistry("${ARTIFACTORY_URL}/${DOCKER_REPO}", 'jfrog') {
-                 dockerImage.push()
+                 def customImage = docker.build("$DOCKER_IMAGE_NAME", "./docker")
                  }                     
            }
         }
+	stage('Trivy Scan') {
+            steps {
+               sh 'trivy image $DOCKER_IMAGE_NAME  --output report.html || true'
 	  }
-    }
+        }
+	stage('Scan and push image') {
+	   steps {
+	       dir('${WORKSPACE}') {
+		// Scan Docker image for vulnerabilities
+		//	jf 'docker scan $DOCKER_IMAGE_NAME'
+
+		// Push image to Artifactory
+		jf 'docker push $DOCKER_IMAGE_NAME'
+				}
+			}
+		}
+        
+}
 }
