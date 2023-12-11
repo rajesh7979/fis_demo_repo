@@ -7,12 +7,12 @@ pipeline {
     }
    environment {
         DOCKER_USERNAME = credentials('JFROG_USER')
-	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${BUILD_ID}.${env.BUILD_NUMBER}"
+	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${BUILD_TAG}.${env.BUILD_NUMBER}"
         ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
         WEBHOOK_URL = credentials("webhook_url")
         BUILD_NAME = "${JOB_NAME}"
         BUILD_NO = "${env.BUILD_NUMBER}"
-	BUILD_ID = "${env.BUILD_ID}"
+	BUILD_TAG = "${env.BUILD_TAG}"
 	DOCKER_REGISTRY = 'slk.jfrog.io'
         DOCKER_REPO = 'docker-images-io-docker'
         DOCKER_PASSWORD = credentials('JFROG_PASSWORD')
@@ -73,11 +73,11 @@ pipeline {
               sh "docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG"
 			}
 		}
-	stage('Publish build info') {
+	/* stage('Publish build info') {
 	   steps {
 		jf 'rt build-publish'
 		}
-	}
+	} */
  
         stage('Notification') {
             steps {
@@ -87,5 +87,14 @@ pipeline {
             }
         }
     }
-        
+	post {
+          success {
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '.', reportFiles: 'report.html', reportName: 'Trivy Scan', reportTitles: 'Trivy Scan', useWrapperFileDirectly: true])
+            echo 'Build successfully!'   
+        }
+
+          failure {
+            echo 'Build Failed'
+        }
+    }       
 }
