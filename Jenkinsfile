@@ -7,12 +7,10 @@ pipeline {
     }
    environment {
         DOCKER_USERNAME = credentials('JFROG_USER')
-	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${BUILD_TAG}.${env.BUILD_NUMBER}"
+	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${env.BUILD_NUMBER}"
         ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
         WEBHOOK_URL = credentials("webhook_url")
-        BUILD_NAME = "${JOB_NAME}"
         BUILD_NO = "${env.BUILD_NUMBER}"
-	BUILD_TAG = "${env.BUILD_TAG}"
 	DOCKER_REGISTRY = 'slk.jfrog.io'
         DOCKER_REPO = 'docker-images-io-docker'
         DOCKER_PASSWORD = credentials('JFROG_PASSWORD')
