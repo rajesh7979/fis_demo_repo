@@ -6,12 +6,13 @@ pipeline {
       jfrog 'cli'
     }
    environment {
-        DOCKER_USERNAME = 'rajfriends1437@gmail.com'
+        DOCKER_USERNAME = credentials('JFROG_USER')
 	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${BUILD_ID}.${env.BUILD_NUMBER}"
         ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
         WEBHOOK_URL = credentials("webhook_url")
         BUILD_NAME = "${JOB_NAME}"
         BUILD_NO = "${env.BUILD_NUMBER}"
+	BUILD_ID = "${env.BUILD_ID}"
 	DOCKER_REGISTRY = 'slk.jfrog.io'
         DOCKER_REPO = 'docker-images-io-docker'
         DOCKER_PASSWORD = credentials('JFROG_PASSWORD')
@@ -72,6 +73,19 @@ pipeline {
               sh "docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG"
 			}
 		}
+	stage('Publish build info') {
+	   steps {
+		jf 'rt build-publish'
+		}
+	}
+ 
+        stage('Notification') {
+            steps {
+                office365ConnectorSend webhookUrl: '$WEBHOOK_URL',
+                message: 'build is success',
+                status: 'Success'            
+            }
+        }
+    }
         
-}
 }
