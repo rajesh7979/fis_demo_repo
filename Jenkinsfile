@@ -65,7 +65,7 @@ pipeline {
                sh 'trivy image $DOCKER_IMAGE_NAME  --output report.html || true'
 	  }
         }
-	stage('Scan and push image') {
+	stage('Push image to JFROG') {
 	   steps {
 	      sh "docker login -u $DOCKER_USERNAME -p '$DOCKER_PASSWORD' $DOCKER_REGISTRY"
 	      sh "docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$DOCKER_TAG"
