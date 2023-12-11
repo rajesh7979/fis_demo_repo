@@ -68,7 +68,7 @@ pipeline {
 	stage('Scan and push image') {
 	   steps {
 	      sh "docker login -u $DOCKER_USERNAME -p '$DOCKER_PASSWORD' $DOCKER_REGISTRY"
-	      sh "docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAM:$DOCKER_TAG"
+	      sh "docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$DOCKER_TAG"
               sh "docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG"
 			}
 		}
