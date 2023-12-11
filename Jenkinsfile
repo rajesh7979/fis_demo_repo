@@ -6,12 +6,16 @@ pipeline {
       jfrog 'cli'
     }
    environment {
-      DOCKER_IMAGE_NAME = "slk.jfrog.io/fis-demo-dockerhub/app-image.${BUILD_ID}.${env.BUILD_NUMBER}"
-      ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
-      WEBHOOK_URL = credentials("webhook_url")
-      BUILD_NAME = "${JOB_NAME}"
-      BUILD_NO = "${env.BUILD_NUMBER}"
-       
+        DOCKER_USERNAME = 'rajfriends1437@gmail.com'
+	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${BUILD_ID}.${env.BUILD_NUMBER}"
+        ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
+        WEBHOOK_URL = credentials("webhook_url")
+        BUILD_NAME = "${JOB_NAME}"
+        BUILD_NO = "${env.BUILD_NUMBER}"
+	DOCKER_REGISTRY = 'slk.jfrog.io'
+        DOCKER_REPO = 'docker-images-io-docker'
+        DOCKER_PASSWORD = credentials('JFROG_PASSWORD')
+	DOCKER_TAG = 'latest'
     }
     stages {      
         stage('Build maven ') {
@@ -63,13 +67,9 @@ pipeline {
         }
 	stage('Scan and push image') {
 	   steps {
-	       dir('${WORKSPACE}') {
-		// Scan Docker image for vulnerabilities
-		//	jf 'docker scan $DOCKER_IMAGE_NAME'
-
-		// Push image to Artifactory
-		jf 'docker push $DOCKER_IMAGE_NAME'
-				}
+	      sh "docker login -u $DOCKER_USERNAME -p '$DOCKER_PASSWORD' $DOCKER_REGISTRY"
+	      sh "docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAM:$DOCKER_TAG"
+              sh "docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG"
 			}
 		}
         
