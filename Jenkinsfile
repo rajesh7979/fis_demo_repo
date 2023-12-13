@@ -7,13 +7,14 @@ pipeline {
     }
    environment {
         DOCKER_USERNAME = credentials('JFROG_USER')
-	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/petclinic.${env.BUILD_NUMBER}"
+	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/webapp.${env.BUILD_NUMBER}"
         ARTIFACTORY_ACCESS_TOKEN = credentials('jf_access_token')
         WEBHOOK_URL = credentials("webhook_url")
         BUILD_NO = "${env.BUILD_NUMBER}"
-	DOCKER_REGISTRY = 'slk.jfrog.io'
-        DOCKER_REPO = 'docker-images-io-docker'
+	DOCKER_REGISTRY = 'fisdemo1.jfrog.io'
+        DOCKER_REPO = 'fis-demo-dockerhub-docker-local'
         DOCKER_PASSWORD = credentials('JFROG_PASSWORD')
+	DOCKER_PASS = credentials('w_docker_pass')
 	DOCKER_TAG = 'latest'
     }
     stages {      
@@ -71,6 +72,15 @@ pipeline {
               sh "docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG"
 			}
 		}
+	stage('Push image to Dockerhub') {
+	   steps {
+	        withCredentials([usernameColonPassword(credentialsId: 'w_docker', variable: 'w_docker')]) {
+                sh "docker login -u ahmedwahi314 -p $DOCKER_PASS"
+	        sh "docker tag $DOCKER_IMAGE_NAME ahmedwahi314/petclinic.${BUILD_ID}:$DOCKER_TAG"
+                sh "docker push ahmedwahi314/petclinic.${BUILD_ID}:$DOCKER_TAG"
+            }
+		}
+	}
 	/* stage('Publish build info') {
 	   steps {
 		jf 'rt build-publish'
