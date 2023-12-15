@@ -1,10 +1,10 @@
 pipeline {
   agent any
-  tools {
+ /* tools {
       maven 'maven3'
       jdk 'JDK8'
       jfrog 'cli'
-    }
+    }*/
    environment {
         DOCKER_USERNAME = credentials('JFROG_USER')
 	DOCKER_IMAGE_NAME = "$DOCKER_REGISTRY/$DOCKER_REPO/webapp.${env.BUILD_NUMBER}"
