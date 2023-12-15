@@ -1,3 +1,4 @@
+@Library('shared-library-jenkins') _
 pipeline {
   agent any
  /* tools {
@@ -17,14 +18,32 @@ pipeline {
 	DOCKER_PASS = credentials('w_docker_pass')
 	DOCKER_TAG = 'latest'
     }
-    stages {      
-        stage('Build maven ') {
-            steps { 
-                    sh 'pwd'      
-                    sh 'mvn  clean install package'
-            }
+    parameters {
+        choice(name: 'action', choices:'create\ndelete', description: 'Choose create/destroy')
+       // string(name: 'ImageName', description: 'name of the docker build', defaultValue: 'javapp')
+       //  string(name: 'ImageTag', description: 'Tag of the docker build', defaultValue: 'v1')
+       //  string(name: 'DockerHubUser', description: 'name of App', defaultValue: 'shaykube')
+    }
+	
+    stages {
+        stage('Git Checkout'){
+        when { expression { params.action == 'create'} }
+            steps{
+                    gitCheckout(
+                        branch: "main",
+                        url: "https://github.com/rajesh7979/fis_demo_repo.git"
+                    )             
+            }     
+        }     
+        stage('Maven Build'){
+        when { expression { params.action == 'create'} }
+
+               steps {
+                  script {
+                    mvnBuild()
+                  }
+               }  
         }
-        
         stage('Copy Artifact') {
            steps { 
                    sh 'pwd'
